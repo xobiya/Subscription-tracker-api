@@ -101,6 +101,15 @@ const register = async (req, res, next) => {
     }
 }
  const logout =async (req,res,next)=>{
-    res.send({ title: 'Logout route' });
+    try {
+        // Invalidate JWT (implementation depends on your strategy)
+        // For example, you might add the token to a blacklist
+        res.status(200).json({
+            success: true,
+            message: 'User logged out successfully',
+        });
+    } catch (error) {
+        next(error);
+    }
 }
 export { register, login, logout };
