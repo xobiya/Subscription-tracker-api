@@ -7,6 +7,7 @@ import connectDB from './database/mongodb.js';
 import errorMiddleware from './middlewares/error.middlewares.js';
 import cookieParser from 'cookie-parser';
 import arcjetMiddleware from './middlewares/arcjet.middlewares.js';
+import workFlowRouter from './routes/workFlow.routes.js';
 
 const app = express();
 app.use(express.json());
@@ -18,6 +19,12 @@ app.use(arcjetMiddleware);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/subscriptions', subscriptionRouter);
+app.use('/api/v1/workflow', workFlowRouter);
+
+// Backwards-compatible aliases (shorter paths) so clients using /api/... keep working
+app.use('/api/auth', authRouter);
+app.use('/api/subscriptions', subscriptionRouter);
+app.use('/api/workflow', workFlowRouter);
 
 app.use(errorMiddleware);
 

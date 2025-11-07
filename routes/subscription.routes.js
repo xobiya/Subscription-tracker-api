@@ -1,30 +1,30 @@
 import { Router } from "express";
+import authorize from "../middlewares/auth.middlewares.js";
+import {
+  createSubscription,
+  getSubscriptions,
+  getSubscriptionById,
+  updateSubscription,
+  deleteSubscription,
+  cancelSubscription,
+  renewSubscription,
+} from "../controller/subscription.controller.js";
 const subscriptionRouter = Router();
 
 subscriptionRouter.get('/', (req, res) => {
   res.send({ title: 'Get All Subscriptions' });
 });
 
-subscriptionRouter.get('/:id', (req, res) => {
-  res.send({ title: 'Get Subscription details' });
-});
-subscriptionRouter.post('/', (req, res) => {
-  res.send({ title: 'Create New Subscription' });
-});
-subscriptionRouter.put('/:id', (req, res) => {
-  res.send({ title: 'Update Subscription' });
-});
+// user-specific subscriptions must come before param routes to avoid route collisions
+subscriptionRouter.get('/user/:userId', authorize, getSubscriptions);
 
-subscriptionRouter.delete('/:id', (req, res) => {
-  res.send({ title: 'Delete Subscription' });
-});
-subscriptionRouter.get('/user/:userId', (req, res) => {
-  res.send({ title: 'Get Subscriptions for a User' });
-});
-subscriptionRouter.get('/:id/cancel', (req, res) => {
-  res.send({ title: 'Cancel Subscription' });
-});
-subscriptionRouter.get('/:id/renew', (req, res) => {
-  res.send({ title: 'Renew Subscription' });
-});
+// Create subscription (authenticated)
+subscriptionRouter.post('/', authorize, createSubscription);
+
+// Routes for a specific subscription - all require authentication and ownership checks inside controller
+subscriptionRouter.get('/:id', authorize, getSubscriptionById);
+subscriptionRouter.put('/:id', authorize, updateSubscription);
+subscriptionRouter.delete('/:id', authorize, deleteSubscription);
+subscriptionRouter.get('/:id/cancel', authorize, cancelSubscription);
+subscriptionRouter.get('/:id/renew', authorize, renewSubscription);
 export default subscriptionRouter;

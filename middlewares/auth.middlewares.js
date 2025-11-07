@@ -17,8 +17,20 @@ const authorize = async (req, res, next) => {
             throw error;
         }
 
-        // Verify token
-        const decoded = jwt.verify(token, JWT_SECRET);
+        // Verify token (handle expiration specially so frontend can react)
+        let decoded;
+        try {
+            decoded = jwt.verify(token, JWT_SECRET);
+        } catch (err) {
+            if (err && err.name === 'TokenExpiredError') {
+                const error = new Error('Token expired');
+                error.statusCode = 401;
+                error.code = 'TOKEN_EXPIRED';
+                throw error;
+            }
+            throw err;
+        }
+
         const user = await User.findById(decoded.userId).select('-password');
         if (!user) {
             const error = new Error('Not authorized, user not found');
