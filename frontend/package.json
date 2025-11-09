@@ -1,0 +1,23 @@
+{
+  "name": "subscription-tracker-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "*",
+    "react-dom": "*"
+  },
+  "devDependencies": {
+    "autoprefixer": "*",
+    "postcss": "*",
+    "tailwindcss": "*",
+    "vite": "*",
+    "@vitejs/plugin-react": "*",
+    "react-router-dom": "*",
+    "patch-package": "*"
+  }
+}
