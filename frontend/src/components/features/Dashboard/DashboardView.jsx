@@ -4,8 +4,22 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, TrendingUp, Calendar, Download, ArrowUpRight, ArrowDownRight, Bell, Sparkles } from 'lucide-react'
 import Card from '../../../components/ui/Card'
 import Button from '../../../components/ui/Button'
+import ErrorMessage from '../../../components/ui/ErrorMessage'
 
 function StatCard({ title, value, subtitle, trend, icon: Icon, color = 'blue' }) {
+  const colorMap = {
+    blue: { bgSoft: 'bg-blue-500/10', text: 'text-blue-500', dot: 'bg-blue-500' },
+    green: { bgSoft: 'bg-green-500/10', text: 'text-green-500', dot: 'bg-green-500' },
+    orange: { bgSoft: 'bg-orange-500/10', text: 'text-orange-500', dot: 'bg-orange-500' },
+    purple: { bgSoft: 'bg-purple-500/10', text: 'text-purple-500', dot: 'bg-purple-500' },
+    red: { bgSoft: 'bg-red-500/10', text: 'text-red-500', dot: 'bg-red-500' },
+    yellow: { bgSoft: 'bg-yellow-500/10', text: 'text-yellow-500', dot: 'bg-yellow-500' },
+    pink: { bgSoft: 'bg-pink-500/10', text: 'text-pink-500', dot: 'bg-pink-500' },
+  }
+
+  const bgClass = (colorMap[color] && colorMap[color].bgSoft) || colorMap.blue.bgSoft
+  const textClass = (colorMap[color] && colorMap[color].text) || colorMap.blue.text
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden">
       <Card className="p-6 hover:shadow-lg transition-all duration-300 border-0 bg-gradient-to-br from-white to-gray-50/50">
@@ -16,14 +30,14 @@ function StatCard({ title, value, subtitle, trend, icon: Icon, color = 'blue' })
               {typeof value === 'number' ? `$${value.toFixed(2)}` : value}
             </p>
             {subtitle && (
-              <div className={`flex items-center gap-1 text-sm ${trend > 0 ? 'text-red-500' : 'text-green-500'}`}>
+              <div className={`flex items-center gap-1 text-sm ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}>
                 {trend > 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
                 <span>{Math.abs(trend)}% {subtitle}</span>
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-2xl bg-${color}-500/10`}>
-            <Icon className={`w-6 h-6 text-${color}-500`} />
+          <div className={`p-3 rounded-2xl ${bgClass}`}>
+            <Icon className={`w-6 h-6 ${textClass}`} />
           </div>
         </div>
       </Card>
@@ -31,15 +45,15 @@ function StatCard({ title, value, subtitle, trend, icon: Icon, color = 'blue' })
   )
 }
 
-function CategoryItem({ name, value, percentage, color }) {
+function CategoryItem({ name, value, percentage, dotClass }) {
   return (
     <div className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
       <div className="flex items-center gap-3">
-        <div className={`w-3 h-3 rounded-full bg-${color}-500`} />
+        <div className={`${dotClass} w-3 h-3 rounded-full`} />
         <span className="font-medium text-gray-700">{name}</span>
       </div>
       <div className="text-right">
-        <div className="font-semibold text-gray-900">${value.toFixed(2)}</div>
+        <div className="font-semibold text-gray-900">${Number(value || 0).toFixed(2)}</div>
         <div className="text-sm text-gray-500">{percentage}%</div>
       </div>
     </div>
@@ -47,19 +61,20 @@ function CategoryItem({ name, value, percentage, color }) {
 }
 
 function SubscriptionCard({ subscription }) {
+  const initial = ((subscription.name || '?').charAt(0) || '?').toUpperCase()
   return (
     <motion.div whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-white to-gray-50/50 border border-gray-200/50 hover:border-blue-200 transition-all duration-300">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
-          {subscription.name.charAt(0)}
+          {initial}
         </div>
         <div>
-          <h4 className="font-semibold text-gray-900">{subscription.name}</h4>
+          <h4 className="font-semibold text-gray-900">{subscription.name || 'Unknown'}</h4>
           <p className="text-sm text-gray-500">{subscription.category}</p>
         </div>
       </div>
       <div className="text-right">
-        <div className="font-bold text-gray-900">${subscription.price}</div>
+        <div className="font-bold text-gray-900">${Number(subscription.price || 0).toFixed(2)}</div>
         <div className="text-sm text-gray-500">
           {subscription.endDate ? new Date(subscription.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
         </div>
@@ -94,6 +109,14 @@ export default function DashboardView({ user, stats, loading, error, timeRange, 
     )
   }
 
+  if (error) {
+    return (
+      <div className="p-6">
+        <ErrorMessage error={error} onRetry={onReload} />
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 space-y-6">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -117,7 +140,7 @@ export default function DashboardView({ user, stats, loading, error, timeRange, 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard title="Total Spending" value={stats.total} subtitle="from last month" trend={stats.monthlyChange} icon={TrendingUp} color="blue" />
         <StatCard title="Active Subscriptions" value={stats.count} icon={Sparkles} color="green" />
-        <StatCard title="Upcoming Renewals" value={stats.upcoming.length} icon={Calendar} color="orange" />
+        <StatCard title="Upcoming Renewals" value={(stats.upcoming && stats.upcoming.length) || 0} icon={Calendar} color="orange" />
         <StatCard title="Average per Service" value={stats.averagePerService} icon={Bell} color="purple" />
       </div>
 
@@ -134,7 +157,7 @@ export default function DashboardView({ user, stats, loading, error, timeRange, 
             <AnimatePresence>
               {stats.upcoming && stats.upcoming.length ? (
                 stats.upcoming.map((subscription, index) => (
-                  <motion.div key={subscription.id || subscription._id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
+                  <motion.div key={subscription.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
                     <SubscriptionCard subscription={subscription} />
                   </motion.div>
                 ))
@@ -158,7 +181,17 @@ export default function DashboardView({ user, stats, loading, error, timeRange, 
                   const percentage = ((value / stats.total) * 100).toFixed(1)
                   const colors = ['blue', 'green', 'yellow', 'red', 'purple', 'pink']
                   const color = colors[index % colors.length]
-                  return <CategoryItem key={category} name={category} value={value} percentage={percentage} color={color} />
+                  const colorMap = {
+                    blue: { bgSoft: 'bg-blue-500/10', text: 'text-blue-500', dot: 'bg-blue-500' },
+                    green: { bgSoft: 'bg-green-500/10', text: 'text-green-500', dot: 'bg-green-500' },
+                    orange: { bgSoft: 'bg-orange-500/10', text: 'text-orange-500', dot: 'bg-orange-500' },
+                    purple: { bgSoft: 'bg-purple-500/10', text: 'text-purple-500', dot: 'bg-purple-500' },
+                    red: { bgSoft: 'bg-red-500/10', text: 'text-red-500', dot: 'bg-red-500' },
+                    yellow: { bgSoft: 'bg-yellow-500/10', text: 'text-yellow-500', dot: 'bg-yellow-500' },
+                    pink: { bgSoft: 'bg-pink-500/10', text: 'text-pink-500', dot: 'bg-pink-500' },
+                  }
+                  const dotClass = colorMap[color]?.dot || colorMap.blue.dot
+                  return <CategoryItem key={category} name={category} value={value} percentage={percentage} dotClass={dotClass} />
                 })
               ) : (
                 <div className="text-center py-8 text-gray-500">
