@@ -16,9 +16,8 @@
      A modern full-stack application to help users manage and track recurring subscriptions efficiently with a beautiful React frontend and robust Node.js backend.
     </div>
 </div>
-![alt text](image-2.png)
 <p align="center">
-    <img src="./image-2.png" alt="Subscription Tracker — dashboard preview" style="max-width:45%; margin-right:2%;" />
+    <img src="./image.png" alt="Subscription Tracker — dashboard preview" style="max-width:45%; margin-right:2%;" />
     <img src="./image-1.png" alt="Subscription Tracker — mobile/compact view" style="max-width:45%;" />
 </p>
 
