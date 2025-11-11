@@ -16,6 +16,8 @@
      A modern full-stack application to help users manage and track recurring subscriptions efficiently with a beautiful React frontend and robust Node.js backend.
     </div>
 </div>
+![alt text](image-2.png)
+![alt text](image-1.png)
 
 ## 📋 Table of Contents
 
