@@ -17,7 +17,10 @@
     </div>
 </div>
 ![alt text](image-2.png)
-![alt text](image-1.png)
+<p align="center">
+    <img src="./image-2.png" alt="Subscription Tracker — dashboard preview" style="max-width:45%; margin-right:2%;" />
+    <img src="./image-1.png" alt="Subscription Tracker — mobile/compact view" style="max-width:45%;" />
+</p>
 
 ## 📋 Table of Contents
 
