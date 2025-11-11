@@ -1,0 +1,57 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+
+# Logs
+logs/
+*.log
+
+# Runtime files
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.pid.prev
+
+# Build / output
+dist/
+build/
+lib/
+esm/
+cjs/
+public/build/
+.next/
+out/
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Test / tooling caches
+.cache/
+jest.config.js.cache
+.vitest/
+
+# Environment files (keep example files)
+.env
+.env.* 
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+
+# Misc
+/.parcel-cache
+/.turbo
+*.tgz
+*.log.*
+node_repl_history
