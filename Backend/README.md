@@ -1,3 +1,62 @@
+# Backend — Subscription Tracker API
+
+This folder contains the backend API for Subscription Tracker, built with Node.js, Express and MongoDB (Mongoose).
+
+Quick start
+1. Install dependencies:
+```bash
+cd Backend
+npm install
+```
+
+2. Create environment file (`.env` or `.env.development.local`) with the variables shown below.
+
+3. Run the dev server:
+```bash
+npm run dev
+```
+
+By default the server listens on the port defined by `PORT` (example: `5000`).
+
+Environment variables (example)
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/subscription_tracker
+JWT_SECRET=your_secret_key
+JWT_EXPIRES_IN=1d
+
+# Optional mailer config for nodemailer
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your@user
+SMTP_PASS=yourpass
+```
+
+What is included
+- `app.js` — Express application entry
+- `routes/` — route definitions (auth, subscriptions, users, workflows)
+- `controller/` — controller functions for routes
+- `model/` — Mongoose models (`user`, `subscription`)
+- `middlewares/` — auth, error and custom middlewares
+- `config/` — configuration helpers (mailer, env parsing)
+- `utils/` — helper utilities (email templates, send-email wrapper)
+
+Running in production
+- Use a process manager (pm2, systemd) or containerize in Docker.
+- Ensure `NODE_ENV=production`, a production `MONGO_URI`, and secure `JWT_SECRET`.
+
+Testing
+- This starter does not include backend tests by default. Recommended additions:
+  - SuperTest + Jest (or Mocha) for API integration tests
+  - Unit tests for controllers and utils
+
+Security & secrets
+- Do NOT commit credentials or private keys. If secrets accidentally land in git history, rotate them immediately and remove from history using a tool such as `git filter-repo`.
+
+License & author
+- See repo root `LICENSE` (if present)
+- Author: Feleke Eshetu (@xobiya)
 <div align="center">
   <div>
     <img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white" alt="node.js" />
@@ -74,7 +133,7 @@ npm run dev
 ```
 
 Server will start on:
-**[http://localhost:5000](http://localhost:5000)**
+**[http://localhost:5500](http://localhost:5000)**
 
 ---
 
