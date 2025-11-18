@@ -21,6 +21,9 @@ export const {
     QSTASH_TOKEN,
     QSTASH_CURRENT_SIGNING_KEY,
     QSTASH_NEXT_SIGNING_KEY,
+    TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN,
+    TWILIO_FROM,
 } = process.env;
 
 export { SERVER_URL };

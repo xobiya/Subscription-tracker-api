@@ -33,6 +33,17 @@ SMTP_USER=your@user
 SMTP_PASS=yourpass
 ```
 
+## Subscription notifications
+
+- The backend now ships with a scheduled notification runner that wakes every 60 minutes (customize `NOTIFICATION_INTERVAL_MINUTES`).
+- Set `DISABLE_NOTIFICATION_SCHEDULER=true` to prevent the scheduler from starting during tests or maintenance windows.
+- Configure Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM`) to enable SMS delivery; email delivery uses the existing Nodemailer transporter.
+- Users can manage their notification preferences via the new endpoints:
+  - `GET /api/v1/users/:id/preferences`
+  - `PUT /api/v1/users/:id/preferences`
+  The payload accepts `enabled`, `channels`, `daysBefore`, `smsNumber`, and `pushEndpoint`.
+- Every notification attempt is persisted under `model/notificationLog.model.js` for auditing.
+
 What is included
 - `app.js` — Express application entry
 - `routes/` — route definitions (auth, subscriptions, users, workflows)

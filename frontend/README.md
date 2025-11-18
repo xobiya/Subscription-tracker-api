@@ -38,10 +38,15 @@ Testing notes
 - If you see warnings like "Not implemented: window.scrollTo" during tests, add a small stub in your test setup (e.g., `globalThis.window.scrollTo = () => {}`) or mock framer-motion during tests.
 
 Environment & API
-- The frontend expects the backend API to be reachable at the base URL configured by `src/api.js`. Update that file to change the base URL (for example to `http://localhost:5000/api`).
+- The frontend expects the backend API to be reachable at the base URL configured by `src/api.js`. Update that file to change the base URL (for example to `http://localhost:5500/api`).
 
 Security
 - Do not store long-lived secrets in the frontend. Use the backend to sign tokens and only store short-lived tokens in memory or secure httpOnly cookies.
+
+Notifications & preferences
+- The profile screen now exposes a notification preferences drawer where users can pick channels (email/SMS/push) and select which `daysBefore` values trigger reminders.
+- Preferences are fetched/persisted via `/api/v1/users/{id}/preferences`, so any backend changes there should be reflected in `src/services/notificationService.js` and the `ProfileContainer`.
+- Save and use the provided hooks/services to keep the UI decoupled from API details.
 
 Next steps
 - Continue refactoring large feature files into container/view pairs (Navbar, Subscriptions, Dashboard subcomponents).

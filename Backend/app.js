@@ -8,6 +8,7 @@ import errorMiddleware from './middlewares/error.middlewares.js';
 import cookieParser from 'cookie-parser';
 import arcjetMiddleware from './middlewares/arcjet.middlewares.js';
 import workFlowRouter from './routes/workFlow.routes.js';
+import { setupNotificationScheduler } from './services/notificationScheduler.js';
 
 const app = express();
 app.use(express.json());
@@ -35,5 +36,6 @@ app.get('/', (req, res) => {
 app.listen(PORT, async () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
   await connectDB();
+  setupNotificationScheduler();
 });
 export default app;
