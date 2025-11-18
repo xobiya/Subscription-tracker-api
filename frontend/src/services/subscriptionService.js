@@ -45,11 +45,36 @@ const subscriptionService = {
 
   async createSubscription(payload, opts = {}) {
     const { token } = opts || {}
+    // Normalize payload to match backend expectations
+    const normalize = (p) => ({
+      ...p,
+      currency: p.currency ? String(p.currency).toUpperCase() : 'USD',
+      category: p.category ? String(p.category).toLowerCase() : 'other',
+      frequency: p.frequency ? String(p.frequency).toLowerCase() : 'monthly',
+      paymentMethod: p.paymentMethod ? String(p.paymentMethod).toLowerCase() : 'other',
+      startDate: p.startDate ? (typeof p.startDate === 'string' ? p.startDate : new Date(p.startDate).toISOString()) : new Date().toISOString(),
+    })
+
+    const payloadToSend = normalize(payload)
+
     if (token) {
-      const res = await api.createSubscription(payload, token)
-      if (res && res.success) return transform(res.data)
+      const res = await api.createSubscription(payloadToSend, token)
+      if (res && res.success) {
+        const created = res.data?.subscription ?? res.data
+        if (!created) throw new Error('Empty subscription returned from server')
+        return transform(created)
+      }
       throw new Error(res?.message || 'Failed to create subscription')
     }
+
+    // If no token provided, still attempt to call API (api.request auto-reads token from localStorage)
+    const res = await api.createSubscription(payloadToSend)
+    if (res && res.success) {
+      const created = res.data?.subscription ?? res.data
+      if (!created) throw new Error('Empty subscription returned from server')
+      return transform(created)
+    }
+    // fallback mock (kept for dev convenience)
     const mock = { _id: String(Date.now()), ...payload }
     return transform(mock)
   },
@@ -58,7 +83,11 @@ const subscriptionService = {
     const { token } = opts || {}
     if (token) {
       const res = await api.updateSubscription(id, payload, token)
-      if (res && res.success) return transform(res.data)
+      if (res && res.success) {
+        const updated = res.data?.subscription ?? res.data
+        if (!updated) throw new Error('Empty subscription returned from server')
+        return transform(updated)
+      }
       throw new Error(res?.message || 'Failed to update subscription')
     }
     return transform({ _id: id, ...payload })
