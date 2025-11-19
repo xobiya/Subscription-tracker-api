@@ -79,4 +79,3 @@ subscriptionSchema.pre('save', function(next) {
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
 
 export default Subscription;
-// {name:"Netflix", price:9.99, currency:"USD", frequency:"monthly", category:"entertainment", paymentMethod:"credit_card", status:"active", startDate:"2023-01-01", user:"64a7f0c2e1b8c2a5d6f4e8b9"}

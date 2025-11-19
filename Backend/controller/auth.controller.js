@@ -112,4 +112,48 @@ const register = async (req, res, next) => {
         next(error);
     }
 }
-export { register, login, logout };
+const oauthCallback = async (req, res, next) => {
+    try {
+        // req.user is set by passport strategy (see config/passport.js)
+        const payload = req.user || {};
+        const { provider, profile } = payload;
+
+        if (!profile) {
+            const err = new Error('OAuth profile not available');
+            err.statusCode = 400;
+            throw err;
+        }
+
+        // Extract email and name. Fallback to provider-id-based email if not provided
+        const emails = profile.emails || [];
+        const email = (emails[0] && emails[0].value) || `${provider}-${profile.id}@example.com`;
+        const name = profile.displayName || profile.username || `user-${profile.id}`;
+
+        // Try to find existing user by email. If not found, create a new one with a random password
+        let user = await User.findOne({ email });
+        if (!user) {
+            const randomPassword = Math.random().toString(36).slice(-12);
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+            user = await User.create({ name, email, password: hashedPassword });
+        }
+
+        // Create JWT
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
+        // Redirect to frontend with token (frontend should handle storing the token)
+        const FRONTEND_URL = process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173';
+        const redirectUrl = `${FRONTEND_URL.replace(/\/$/, '')}/auth/callback?token=${token}`;
+
+        return res.redirect(redirectUrl);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const oauthFailed = (req, res) => {
+    res.status(401).json({ success: false, message: 'OAuth authentication failed' });
+};
+
+export { register, login, logout, oauthCallback, oauthFailed };

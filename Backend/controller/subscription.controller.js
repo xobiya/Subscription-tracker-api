@@ -5,8 +5,31 @@ import { SERVER_URL } from '../config/env.js';
 export const createSubscription = async (req, res, next) => {
     // Handle create new subscription
     try {
+        // Normalize incoming payload and compute endDate if missing.
+        const payload = { ...req.body };
+
+        // Ensure startDate is a Date
+        const startDate = payload.startDate ? new Date(payload.startDate) : new Date();
+
+        // Normalize enumerations to match schema expectations
+        if (payload.currency) payload.currency = String(payload.currency).toUpperCase();
+        if (payload.category) payload.category = String(payload.category).toLowerCase();
+        if (payload.frequency) payload.frequency = String(payload.frequency).toLowerCase();
+        if (payload.paymentMethod) payload.paymentMethod = String(payload.paymentMethod).toLowerCase();
+
+        // Compute endDate if not provided (use same logic as schema pre-save)
+        let endDate = payload.endDate ? new Date(payload.endDate) : null;
+        if (!endDate) {
+            const endPeriods = { daily: 1, weekly: 7, monthly: 30, yearly: 365 };
+            const daysToAdd = endPeriods[payload.frequency] || endPeriods['monthly'];
+            endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + daysToAdd);
+        }
+
         const subscription = await Subscription.create({
-            ...req.body,
+            ...payload,
+            startDate,
+            endDate,
             user: req.user._id
         });
         // Trigger the reminder workflow (Upstash/QStash)

@@ -1,19 +1,20 @@
-import { ARCJET_KEY } from "./env.js";
+import { ARCJET_KEY, NODE_ENV } from "./env.js";
 import arcjet, { shield, detectBot, tokenBucket } from "@arcjet/node";
+
+const isProduction = NODE_ENV === 'production';
 
 const aj = arcjet({
   key: ARCJET_KEY,
   characteristics: ["ip.src"],
   rules: [
-    // Protect your app from common attacks (e.g., SQL injection)
-    shield({ mode: "LIVE" }),
+    shield({ mode: isProduction ? "LIVE" : "DRY_RUN" }),
 
     // Bot detection rule
     detectBot({
-      mode: "LIVE", // Blocks requests; use "DRY_RUN" to log only
+      mode: isProduction ? "LIVE" : "DRY_RUN", // Blocks requests only in production
       allow: [
         "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc.
-        // Uncomment to allow other common bot categories
+        // Optionally allow other common bot categories in non-production
         // "CATEGORY:MONITOR", // Uptime monitoring services
         // "CATEGORY:PREVIEW", // Link previews (Slack, Discord, etc.)
       ],
@@ -21,7 +22,7 @@ const aj = arcjet({
 
     // Token bucket rate limiting
     tokenBucket({
-      mode: "LIVE",
+      mode: isProduction ? "LIVE" : "DRY_RUN",
       // Tracked by IP address by default
       refillRate: 5, // Refill 5 tokens per interval
       interval: 10, // Refill every 10 seconds
