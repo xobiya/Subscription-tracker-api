@@ -9,11 +9,15 @@ import cookieParser from 'cookie-parser';
 import arcjetMiddleware from './middlewares/arcjet.middlewares.js';
 import workFlowRouter from './routes/workFlow.routes.js';
 import { setupNotificationScheduler } from './services/notificationScheduler.js';
+import passport from './config/passport.js';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+// Passport initialization (for OAuth strategies)
+app.use(passport.initialize());
 
 app.use(arcjetMiddleware);
 
@@ -33,9 +37,23 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Express server!');
 });
 
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
   await connectDB();
   setupNotificationScheduler();
+});
+
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    // Try a fallback port (PORT + 1) to avoid crashing in development when the port is busy.
+    const fallback = Number(PORT || 0) + 1 || 0;
+    // eslint-disable-next-line no-console
+    console.warn(`Port ${PORT} is in use. Attempting to listen on fallback port ${fallback}...`);
+    server.listen(fallback);
+  } else {
+    // eslint-disable-next-line no-console
+    console.error('Server error:', err);
+    process.exit(1);
+  }
 });
 export default app;

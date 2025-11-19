@@ -48,7 +48,7 @@ export default function SubscriptionsView({
       switch(sortBy) {
         case 'price': return b.price - a.price
         case 'date': return new Date(b.startDate) - new Date(a.startDate)
-        case 'name': return a.name.localeCompare(b.name)
+        case 'name': return (a.name || '').localeCompare(b.name || '')
         default: return 0
       }
     })

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import useAuth from '../../../hooks/useAuth'
 import LoginView from './LoginView'
 
@@ -15,7 +15,7 @@ export default function LoginContainer() {
     setError(null)
     setLoading(true)
     try {
-      const res = await login(form)
+  const res = await login(form)
       if (!res || !res.success) {
         setError(res?.message || 'Login failed. Please check your credentials.')
       }
@@ -26,10 +26,8 @@ export default function LoginContainer() {
     }
   }
 
-  const fillDemoCredentials = () => {
-    setForm({ email: 'demo@subtrack.com', password: 'Demo@1234' })
-  }
 
+ 
   return (
     <LoginView
       form={form}
@@ -41,7 +39,6 @@ export default function LoginContainer() {
       rememberMe={rememberMe}
       setRememberMe={setRememberMe}
       submit={submit}
-      fillDemoCredentials={fillDemoCredentials}
     />
   )
 }

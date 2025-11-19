@@ -16,6 +16,12 @@ export default function ProfileView({
   setForm,
   handleSave,
   handleCancel,
+  notificationForm,
+  setNotificationForm,
+  notificationSaving,
+  handleNotificationSave,
+  notificationFeedback,
+  dayOptions = [1, 2, 3, 5, 7, 14],
 }) {
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
@@ -24,12 +30,44 @@ export default function ProfileView({
     { id: 'billing', name: 'Billing', icon: CreditCard },
   ]
 
-  const notificationSettings = [
-    { id: 'email', label: 'Email notifications', description: 'Receive updates via email', enabled: true },
-    { id: 'push', label: 'Push notifications', description: 'Receive browser notifications', enabled: true },
-    { id: 'renewal', label: 'Renewal reminders', description: 'Get notified before subscriptions renew', enabled: true },
-    { id: 'price', label: 'Price changes', description: 'Alert when subscription prices change', enabled: false },
+  const channelOptions = [
+    {
+      id: 'email',
+      label: 'Email reminders',
+      description: 'Receive renewal notifications via email',
+    },
+    {
+      id: 'sms',
+      label: 'SMS reminders',
+      description: 'Get a text before your subscription renews',
+    },
+    {
+      id: 'push',
+      label: 'Push alerts',
+      description: 'Surface reminders in your browser or device',
+    },
   ]
+
+  const toggleChannel = (channelId) => {
+    const current = notificationForm.channels || []
+    const exists = current.includes(channelId)
+    const next = exists ? current.filter((item) => item !== channelId) : [...current, channelId]
+    setNotificationForm({
+      ...notificationForm,
+      channels: next.length ? next : ['email'],
+    })
+  }
+
+  const toggleDay = (day) => {
+    const current = notificationForm.daysBefore || []
+    const exists = current.includes(day)
+    const next = exists ? current.filter((item) => item !== day) : [...current, day]
+    if (!next.length) return
+    setNotificationForm({
+      ...notificationForm,
+      daysBefore: next.sort((a, b) => b - a),
+    })
+  }
 
   const UserAvatar = ({ size = 'lg' }) => {
     const sizeClasses = {
@@ -129,26 +167,91 @@ export default function ProfileView({
 
             {activeTab === 'notifications' && (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                <Card className="p-6 border-0 shadow-lg">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-bold text-gray-900">Notification Preferences</h2>
-                    <p className="text-gray-600">Choose how you want to be notified</p>
+                <Card className="p-6 border-0 shadow-lg space-y-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Notification Preferences</h2>
+                      <p className="text-gray-600">Choose which channels and reminders you want to receive.</p>
+                    </div>
+                    <Button onClick={handleNotificationSave} disabled={notificationSaving}>
+                      {notificationSaving ? 'Saving...' : 'Save preferences'}
+                    </Button>
                   </div>
 
-                  <div className="space-y-4">
-                    {notificationSettings.map((setting) => (
-                      <div key={setting.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div>
-                          <h3 className="font-medium text-gray-900">{setting.label}</h3>
-                          <p className="text-sm text-gray-500">{setting.description}</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" defaultChecked={setting.enabled} />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <label className="flex items-center gap-2 font-medium text-gray-700">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4"
+                        checked={notificationForm?.enabled}
+                        onChange={(event) => setNotificationForm({ ...notificationForm, enabled: event.target.checked })}
+                      />
+                      Enable reminders
+                    </label>
+                    <span className="text-sm text-gray-500">Toggle reminders when you want a quiet week.</span>
                   </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {channelOptions.map((channel) => {
+                      const active = notificationForm?.channels?.includes(channel.id)
+                      return (
+                        <button
+                          key={channel.id}
+                          type="button"
+                          onClick={() => toggleChannel(channel.id)}
+                          className={`p-4 rounded-xl border transition-colors ${active ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}
+                        >
+                          <p className="text-sm font-semibold text-gray-900">{channel.label}</p>
+                          <p className="text-xs text-gray-500 mt-1">{channel.description}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600">Notify me before renewals:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {dayOptions.map((day) => {
+                        const selected = notificationForm?.daysBefore?.includes(day)
+                        return (
+                          <button
+                            key={day}
+                            type="button"
+                            onClick={() => toggleDay(day)}
+                            className={`px-4 py-2 rounded-full text-sm transition-colors border ${selected ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'}`}
+                          >
+                            {day} day{day === 1 ? '' : 's'}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {notificationForm?.channels?.includes('sms') && (
+                    <Input
+                      label="SMS Number"
+                      value={notificationForm.smsNumber}
+                      onChange={(event) => setNotificationForm({ ...notificationForm, smsNumber: event.target.value })}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  )}
+
+                  {notificationForm?.channels?.includes('push') && (
+                    <Input
+                      label="Push endpoint"
+                      value={notificationForm.pushEndpoint}
+                      onChange={(event) => setNotificationForm({ ...notificationForm, pushEndpoint: event.target.value })}
+                      placeholder="https://example.com/push-token"
+                    />
+                  )}
+
+                  {notificationFeedback && (
+                    <div
+                      className={`text-sm font-medium ${notificationFeedback.type === 'success' ? 'text-emerald-600' : 'text-rose-600'}`}
+                    >
+                      {notificationFeedback.message}
+                    </div>
+                  )}
                 </Card>
               </motion.div>
             )}
@@ -225,4 +328,19 @@ ProfileView.propTypes = {
   setForm: PropTypes.func.isRequired,
   handleSave: PropTypes.func.isRequired,
   handleCancel: PropTypes.func.isRequired,
+  notificationForm: PropTypes.shape({
+    enabled: PropTypes.bool,
+    channels: PropTypes.arrayOf(PropTypes.string),
+    daysBefore: PropTypes.arrayOf(PropTypes.number),
+    smsNumber: PropTypes.string,
+    pushEndpoint: PropTypes.string,
+  }).isRequired,
+  setNotificationForm: PropTypes.func.isRequired,
+  notificationSaving: PropTypes.bool,
+  handleNotificationSave: PropTypes.func.isRequired,
+  notificationFeedback: PropTypes.shape({
+    type: PropTypes.oneOf(['success', 'error']),
+    message: PropTypes.string,
+  }),
+  dayOptions: PropTypes.arrayOf(PropTypes.number),
 }

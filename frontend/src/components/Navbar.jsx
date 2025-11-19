@@ -22,7 +22,7 @@ export default function Navbar(){
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: BarChart3 },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
   ]
 

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import RegisterView from './RegisterView'
-import { useNavigate } from 'react-router-dom'
-import api from '../../../api'
+import useAuth from '../../../hooks/useAuth'
 
 function scorePassword(password) {
   if (!password) return 0
@@ -24,7 +23,7 @@ function getRequirements(password) {
 }
 
 export default function RegisterContainer() {
-  const navigate = useNavigate()
+  const { register } = useAuth()
   const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -53,10 +52,11 @@ export default function RegisterContainer() {
     }
     setLoading(true)
     try {
-      // call the existing api module
       const payload = { username: form.username, email: form.email, password: form.password }
-      await api.register(payload)
-      navigate('/dashboard')
+      const res = await register(payload)
+      if (!res || !res.success) {
+        setError(res?.message || 'Failed to create account')
+      }
     } catch (err) {
       setError(err?.message || 'Failed to create account')
     } finally {

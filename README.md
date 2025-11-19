@@ -17,8 +17,8 @@
     </div>
 </div>
 <p align="center">
-    <img src="./image.png" alt="Subscription Tracker — dashboard preview" style="max-width:45%; margin-right:2%;" />
-    <img src="./image-1.png" alt="Subscription Tracker — mobile/compact view" style="max-width:45%;" />
+    <img src="/Sceenshot/image.png" alt="Subscription Tracker — dashboard preview" style="max-width:45%; margin-right:2%;" />
+    <img src="/Sceenshot/image-1.png" alt="Subscription Tracker — mobile/compact view" style="max-width:45%;" />
 </p>
 
 ## 📋 Table of Contents

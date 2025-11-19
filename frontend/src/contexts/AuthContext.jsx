@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
         const parsed = JSON.parse(stored)
         setUser(parsed.user)
         setToken(parsed.token)
+        
       } catch (e) {
         // ignore malformed
       }
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   const save = (userData, tokenValue) => {
     setUser(userData)
     setToken(tokenValue)
+    
     try {
       localStorage.setItem('auth', JSON.stringify({ user: userData, token: tokenValue }))
     } catch (e) {
